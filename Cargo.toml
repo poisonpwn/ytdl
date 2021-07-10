@@ -9,3 +9,4 @@ edition = "2018"
 clap = { version = "~2.27", features = ["yaml"] }
 dirs = "3.0"
 anyhow = "1.0.42"
+colored = "2"
