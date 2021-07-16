@@ -38,29 +38,29 @@ fn get_resolved_parent_dir(extension: &OsStr) -> Result<PathBuf> {
     Ok(parent_dir)
 }
 
-/// directly mutates filename to resolve all ambiguity
+/// directly mutates filepath to resolve all ambiguity
 /// files not having parent directory (i.e if `Path.parent() == ""`) and ending in a recognized video format
 /// parent will be resolved to `std::env::vars_os(ENV_VAR)` where `ENV_VAR` is decided based on file extension
 /// if `ENV_VAR` is unset, current directory is returned as parent.
-pub fn resolve_filename(filename: &mut PathBuf) -> Result<()> {
-    let mut parent_dir = match filename.parent() {
+pub fn resolve_filepath(filepath: &mut PathBuf) -> Result<()> {
+    let mut parent_dir = match filepath.parent() {
         Some(parent_dir) => PathBuf::from(parent_dir),
-        // means that filename's parent is root or some prefix (i.e no need to resolve)
+        // means that filepath's parent is root or some prefix (i.e no need to resolve)
         None => return Ok(()),
     };
 
     if parent_dir == Path::new("") {
-        // filename only given (resolve to media dir if possible)
-        let extension = filename.extension().context("invalid filename!".red())?;
+        // filepath only given (resolve to media dir if possible)
+        let extension = filepath.extension().context("invalid filename!".red())?;
         // get parent dir from env var ("MUSIC" or "VIDEOS"), depending on file extension
         parent_dir = get_resolved_parent_dir(extension)?;
     }
 
-    // creating all intermediate parent directories of filename
+    // creating all intermediate parent directories of filepath
     create_dir_all(&parent_dir).context("could not create parent directories!".red())?;
-    *filename = parent_dir
+    *filepath = parent_dir
         .canonicalize()? // resolves all intermediate symlinks and .. or . dirs
-        .join(filename.file_name().unwrap());
+        .join(filepath.file_name().unwrap());
     Ok(())
 }
 
