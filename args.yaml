@@ -11,30 +11,26 @@ args:
       index: 2
       required: true
 
-  - image-url:
-      help: if outfile is mp3 then download image from this url to use as cover
-      takes_value: true
+  - artist:
+      help: artist to embed into id3v2 tag, file format has to support id3v2
+      short: a
+      long: artist
+
+  - album:
+      help: album to embed into id3v2 tag, file format has to support id3v2
+      short: A
+      long: album
 
   - verbose:
       help: show verbose output
       short: v
       long: verbose
 
-  - keep-image:
-      help: keep downloaded image (optionally pass in path to image dir as argument)
-      short: k
-      long: keep
-      takes_value: true
-      min_values: 0
-      env: IMAGE_DIR
-      requires:
-        - image-url
-
 groups:
   - mp3args:
       args:
-        - keep-image
-        - image-url
+        - artist
+        - album
 
 
 
