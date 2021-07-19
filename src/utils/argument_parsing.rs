@@ -1,30 +1,33 @@
 extern crate clap;
-use super::validation;
+use super::path_validation::MediaFile;
+use super::url_validation::resolve_url;
 use anyhow::Result;
 use clap::{load_yaml, App, Arg, ArgMatches, Values};
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub struct Args {
     pub is_verbose: bool,
-    pub filepath: PathBuf,
+    pub file: MediaFile,
     pub url: String,
-    pub mp3_args: Option<Mp3Args>,
+    pub metadata_args: Option<MetadataArgs>,
     pub youtube_dl_args: Option<Vec<String>>,
 }
 
-pub struct Mp3Args {
-    pub image_url: Option<String>,
-    pub keep_image: bool,
+pub struct MetadataArgs {
+    pub artist: Option<String>,
+    pub album: Option<String>,
 }
-impl Mp3Args {
-    pub fn from_matches(matches: &ArgMatches, filepath: &PathBuf) -> Option<Mp3Args> {
+impl MetadataArgs {
+    pub fn from_matches(matches: &ArgMatches, filepath: &Path) -> Option<MetadataArgs> {
         if filepath.extension().unwrap() == OsStr::new("mp3") {
-            return Some(Mp3Args {
-                image_url: matches
-                    .value_of("image-url")
+            return Some(MetadataArgs {
+                artist: matches
+                    .value_of("artist")
                     .and_then(|image_url| Some(image_url.to_owned())),
-                keep_image: matches.is_present("keep_image"),
+                album: matches
+                    .value_of("album")
+                    .and_then(|image_url| Some(image_url.to_owned())),
             });
         }
         return None;
@@ -44,13 +47,19 @@ pub fn get_resolved_arguments() -> Result<Args> {
         )
         .get_matches();
 
-    let mut filepath = PathBuf::from(matches.value_of("FILEPATH").unwrap());
-    validation::resolve_filepath(&mut filepath)?; //  directly mutates filepath to the resolved path
-    println!("{}", filepath.to_str().unwrap());
+    // filepath from user
+    let filepath = Path::new(matches.value_of("FILEPATH").unwrap());
+    // resolved and parent substituted filepath
+    let file = MediaFile::new(&filepath)?;
+    println!("{}", file.filepath.to_string_lossy());
 
     let mut url = String::from(matches.value_of("URL").unwrap());
-    validation::resolve_url(&mut url)?;
-    let mp3_args = Mp3Args::from_matches(&matches, &filepath);
+    if let Some(resolved_url) = resolve_url(&url)? {
+        url = resolved_url; // change url into "ytsearch:<keyword>"
+    };
+
+    let metadata_args = MetadataArgs::from_matches(&matches, &filepath);
+
     let youtube_dl_args = matches
         .values_of("youtube-dl_args")
         .and_then(|values: Values| {
@@ -60,11 +69,12 @@ pub fn get_resolved_arguments() -> Result<Args> {
                     .collect::<Vec<String>>(),
             )
         });
+
     return Ok(Args {
         youtube_dl_args,
-        filepath,
+        file,
         url,
-        mp3_args,
+        metadata_args,
         is_verbose: matches.is_present("verbose"),
     });
 }
