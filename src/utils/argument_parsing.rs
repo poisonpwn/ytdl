@@ -10,6 +10,7 @@ pub struct Args {
     pub is_verbose: bool,
     pub file: MediaFile,
     pub url: String,
+    pub quality: Option<String>,
     pub metadata_args: Option<MetadataArgs>,
     pub youtube_dl_args: Option<Vec<String>>,
 }
@@ -51,8 +52,6 @@ pub fn get_resolved_arguments() -> Result<Args> {
     let filepath = Path::new(matches.value_of("FILEPATH").unwrap());
     // resolved and parent substituted filepath
     let file = MediaFile::new(&filepath)?;
-    println!("{}", file.filepath.to_string_lossy());
-
     let mut url = String::from(matches.value_of("URL").unwrap());
     if let Some(resolved_url) = resolve_url(&url)? {
         url = resolved_url; // change url into "ytsearch:<keyword>"
@@ -73,6 +72,7 @@ pub fn get_resolved_arguments() -> Result<Args> {
     return Ok(Args {
         youtube_dl_args,
         file,
+        quality: matches.value_of("quality").and_then(|s| Some(s.to_owned())),
         url,
         metadata_args,
         is_verbose: matches.is_present("verbose"),
