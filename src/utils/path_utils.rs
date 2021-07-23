@@ -1,5 +1,6 @@
 use anyhow::{bail, Context, Result};
 use colored::*;
+use getset::Getters;
 use std::ffi::{OsStr, OsString};
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
@@ -50,9 +51,12 @@ impl Format {
     }
 }
 
+#[derive(Getters)]
 pub struct MediaFile {
-    pub filepath: PathBuf,
-    pub format: Format,
+    #[get = "pub"]
+    filepath: PathBuf,
+    #[get = "pub"]
+    format: Format,
 }
 
 impl MediaFile {

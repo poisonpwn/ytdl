@@ -3,20 +3,31 @@ use super::path_utils::MediaFile;
 use super::url_utils::resolve_url;
 use anyhow::Result;
 use clap::{load_yaml, App, Arg, ArgMatches, Values};
+use getset::Getters;
 use std::ffi::OsStr;
 use std::path::Path;
 
+#[derive(Getters)]
 pub struct Args {
-    pub is_verbose: bool,
-    pub file: MediaFile,
-    pub url: String,
-    pub quality: Option<String>,
-    pub metadata_args: Option<MetadataArgs>,
-    pub youtube_dl_args: Option<Vec<String>>,
+    #[get = "pub"]
+    is_verbose: bool,
+    #[get = "pub"]
+    file: MediaFile,
+    #[get = "pub"]
+    url: String,
+    #[get = "pub"]
+    quality: Option<String>,
+    #[get = "pub"]
+    metadata_args: Option<MetadataArgs>,
+    #[get = "pub"]
+    youtube_dl_args: Option<Vec<String>>,
 }
 
+#[derive(Getters)]
 pub struct MetadataArgs {
+    #[get = "pub"]
     pub artist: Option<String>,
+    #[get = "pub"]
     pub album: Option<String>,
 }
 impl MetadataArgs {

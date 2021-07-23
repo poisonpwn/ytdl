@@ -6,24 +6,16 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 
 pub fn run_youtube_dl(args: &Args) -> Result<()> {
-    let Args {
-        file,
-        is_verbose,
-        url,
-        quality,
-        youtube_dl_args,
-        metadata_args: _, // only used in running eye3D
-    } = args;
-
     let mut youtube_dl_command = Command::new("youtube-dl");
-    let filepath = &file.filepath;
+    let file = args.file();
+    let filepath = &file.filepath();
     let file_stem = filepath.file_stem().unwrap();
     let file_without_ext = filepath.parent().unwrap();
     let file_without_ext = file_without_ext.join(file_stem);
 
     let file_format;
     let best_format_string;
-    match &file.format {
+    match &file.format() {
         Video(format) => {
             youtube_dl_command.arg("--recode-video");
             best_format_string = "bestvideo+bestaudio";
@@ -40,7 +32,7 @@ pub fn run_youtube_dl(args: &Args) -> Result<()> {
     let best_format_string = best_format_string.to_owned(); // either "bestaudio" or "bestvideo+bestaudio"
     youtube_dl_command.arg(file_format);
 
-    let quality = match quality {
+    let quality = match args.quality() {
         Some(qual) => qual, // quality is overriden by quality passed in by user
         None => &best_format_string,
     };
@@ -50,14 +42,14 @@ pub fn run_youtube_dl(args: &Args) -> Result<()> {
     // in the form /path/to/filestem.%(ext)s
     youtube_dl_command.arg(format!("{}.%(ext)s", file_without_ext.to_string_lossy()));
 
-    if let Some(youtube_dl_args) = youtube_dl_args {
+    if let Some(youtube_dl_args) = args.youtube_dl_args() {
         youtube_dl_command.args(youtube_dl_args);
     }
 
-    youtube_dl_command.arg(url);
+    youtube_dl_command.arg(args.url());
 
     // user specified output to be verbose
-    if *is_verbose {
+    if *args.is_verbose() {
         // each argument in quotes like "youtube-dl" "-f best" "-o \"/Users/Adhu/some.mp3\""...
         let command_as_string = format!("{:?}", youtube_dl_command);
         // removes all the escape charecters and double quotes
@@ -84,11 +76,10 @@ pub fn run_eye_d3(filepath: &Path, metadata_args: &Option<MetadataArgs>) -> Resu
     let file_stem = filepath.file_stem().unwrap().to_string_lossy();
     eye_d3_command.arg(format!("-t {}", file_stem.replace("_", " "))); // title is constructed by removing all underscores in filestem
     if let Some(metadata_args) = metadata_args {
-        let MetadataArgs { album, artist } = metadata_args;
-        if let Some(album) = album {
+        if let Some(album) = metadata_args.album() {
             eye_d3_command.arg(format!("-A {}", album)); // user passed in Album to embed
         }
-        if let Some(artist) = artist {
+        if let Some(artist) = metadata_args.artist() {
             eye_d3_command.arg(format!("-a {}", artist)); // user passed in artist to embed
         }
     }
