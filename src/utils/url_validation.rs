@@ -20,7 +20,7 @@ pub fn resolve_url(url: &String) -> Result<Option<String>> {
         url
     );
     if user_input::prompt_yes_or_no(&prompt)? {
-        return Ok(Some(format!("'ytsearch:{}'", url)));
+        return Ok(Some(format!("ytsearch:'{}'", url)));
     }
     Ok(None)
 }
