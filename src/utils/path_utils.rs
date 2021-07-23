@@ -4,14 +4,12 @@ use getset::Getters;
 use std::ffi::{OsStr, OsString};
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
-use strum_macros::Display;
 
 macro_rules! map_arr {
     //  macro for mapping each value in array to a diff type
     ($func:path,$($e:expr),*) => {[$($func($e),)*]}
 }
 
-#[derive(Display)]
 pub enum Format {
     Video(OsString),
     Audio(OsString),
