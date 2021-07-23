@@ -1,4 +1,5 @@
 pub mod argument_parsing;
-pub mod path_validation;
-pub mod url_validation;
+pub mod exec_command;
+pub mod path_utils;
+pub mod url_utils;
 pub mod user_input;

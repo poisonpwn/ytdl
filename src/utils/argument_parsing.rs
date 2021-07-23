@@ -1,6 +1,6 @@
 extern crate clap;
-use super::path_validation::MediaFile;
-use super::url_validation::resolve_url;
+use super::path_utils::MediaFile;
+use super::url_utils::resolve_url;
 use anyhow::Result;
 use clap::{load_yaml, App, Arg, ArgMatches, Values};
 use std::ffi::OsStr;
