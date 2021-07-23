@@ -34,8 +34,8 @@ impl Format {
     }
 
     fn get_media_dir_env_var(extension: &OsStr) -> Result<&str> {
-        let video_extensions = map_arr!(OsStr::new, "mp4", "flv", "mkv", "avi"); // video extensions supported
-        let music_extensions = map_arr!(OsStr::new, "mp3", "aac", "m4a"); // audio extensions supported
+        let video_extensions = map_arr!(OsStr::new, "mp4", "flv", "mkv", "avi", "mov"); // video extensions supported
+        let music_extensions = map_arr!(OsStr::new, "mp3", "aac", "m4a", "opus", "flac"); // audio extensions supported
         return if video_extensions.contains(&extension) {
             // is supported video format
             Ok(Format::VIDEO_VAR)
